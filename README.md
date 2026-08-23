@@ -34,7 +34,7 @@ This system supports the full patient-care lifecycle:
 
 ## Stack decision
 
-The project intentionally stays on the current Python + FastAPI stack and React + Vite frontend. The extra Node/TypeScript/Prisma/BullMQ layer has been removed to keep the repository aligned with the chosen architecture and the existing implementation.
+The project intentionally stays on the current Python + FastAPI stack and React + Vite frontend.
 
 ## Implementation notes
 
