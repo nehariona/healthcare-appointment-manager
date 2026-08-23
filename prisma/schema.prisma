@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CANCELLED
+  CANCELLED_BY_DOCTOR
+  NEEDS_RESCHEDULING
+  COMPLETED
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  passwordHash  String
+  fullName      String
+  role          Role
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  doctorProfile DoctorProfile?
+  appointments Appointment[] @relation("PatientAppointments")
+  doctorAppointments Appointment[] @relation("DoctorAppointments")
+  doctorDocuments DoctorDocument[]
+  reminders Reminder[]
+  audits AuditLog[]
+  notifications Notification[]
+}
+
+model DoctorProfile {
+  id                 Int      @id @default(autoincrement())
+  userId             Int      @unique
+  user               User     @relation(fields: [userId], references: [id])
+  specialization     String
+  experienceYears    Int      @default(0)
+  hospitalName       String
+  licenseNumber      String?
+  workingStart       String   @default("09:00")
+  workingEnd         String   @default("17:00")
+  slotDurationMinutes Int     @default(30)
+  isActive           Boolean  @default(true)
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt         DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  documents DoctorDocument[]
+  appointments Appointment[]
+}
+
+model DoctorDocument {
+  id             Int      @id @default(autoincrement())
+  doctorId       Int
+  userId         Int
+  documentType   String
+  fileUrl        String
+  status         VerificationStatus @default(PENDING)
+  reviewedBy     Int?
+  reviewNotes    String?
+  createdAt      DateTime @default(now())
+
+  doctorProfile DoctorProfile? @relation(fields: [doctorId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Appointment {
+  id                     Int      @id @default(autoincrement())
+  patientId              Int
+  doctorId               Int
+  appointmentTime        DateTime
+  status                 AppointmentStatus @default(SCHEDULED)
+  reason                 String?
+  googleCalendarEventId  String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  patient User @relation("PatientAppointments", fields: [patientId], references: [id])
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+  symptomSummary SymptomSummary?
+  postVisitNote PostVisitNote?
+  prescriptions Prescription[]
+  reminders Reminder[]
+  auditLogs AuditLog[]
+
+  @@unique([doctorId, appointmentTime])
+}
+
+model SymptomSummary {
+  id               Int      @id @default(autoincrement())
+  appointmentId    Int      @unique
+  urgencyLevel     String
+  chiefComplaint   String
+  suggestedQuestions Json
+  aiSummary        String?
+  rawSymptoms      String
+  createdAt        DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model PostVisitNote {
+  id             Int      @id @default(autoincrement())
+  appointmentId  Int      @unique
+  clinicalNotes  String
+  patientFriendlySummary String
+  createdAt      DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model Prescription {
+  id                 Int      @id @default(autoincrement())
+  appointmentId      Int
+  medicationName     String
+  dosage             String
+  frequencyHours     Int
+  durationDays       Int
+  instructions       String?
+  createdAt          DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model Reminder {
+  id             Int      @id @default(autoincrement())
+  appointmentId  Int
+  userId         Int
+  prescriptionId Int?
+  reminderAt     DateTime
+  status         ReminderStatus @default(PENDING)
+  emailAddress   String
+  message        String
+  createdAt      DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  type            String
+  subject         String
+  message         String
+  status          NotificationStatus @default(PENDING)
+  attempts        Int      @default(0)
+  lastError       String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id             Int      @id @default(autoincrement())
+  userId         Int?
+  appointmentId  Int?
+  action         String
+  details        String
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+}
