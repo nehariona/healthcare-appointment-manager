@@ -11,12 +11,30 @@ from app.api.notifications import router as notifications_router
 from app.api.users import router as users_router
 from app.api.calendar import router as calendar_router
 
+from app.core.database import Base, engine
+
+# Import all models so SQLAlchemy knows about all tables
+from app.models import (
+    User,
+    Doctor,
+    Appointment,
+    DoctorVerification,
+    DoctorLeave,
+    Symptom,
+    Visit,
+    Notification,
+)
 
 app = FastAPI(
     title="Healthcare Appointment Manager",
     version="1.0.0",
 )
 
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
+
+Base.metadata.create_all(bind=engine)
 
 # =========================================================
 # CORS
@@ -33,7 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # =========================================================
 # ROOT
 # =========================================================
@@ -45,7 +62,6 @@ def root():
         "status": "running",
         "version": "1.0.0",
     }
-
 
 # =========================================================
 # API ROUTES
