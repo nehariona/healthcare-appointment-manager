@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://healthcare-backend-no4b.onrender.com";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -244,6 +245,15 @@ export async function markDoctorLeave(
     }
   );
 
+  return response.data;
+}
+
+// =========================================================
+// GOOGLE CALENDAR
+// =========================================================
+
+export async function getGoogleCalendarAuthUrl() {
+  const response = await api.get("/calendar/oauth/authorize");
   return response.data;
 }
 

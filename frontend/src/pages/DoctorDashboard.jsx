@@ -734,24 +734,24 @@ function DoctorDashboard() {
     }
 
     if (
-      visitExists[
-        appointmentId
-      ]
+      isCancelledAppointment(
+        appointment
+      )
     ) {
       setError(
-        "A visit has already been recorded for this appointment."
+        "Cannot record visit notes for a cancelled appointment."
       );
 
       return;
     }
 
     if (
-      !isCompletedAppointment(
-        appointment
-      )
+      visitExists[
+        appointmentId
+      ]
     ) {
       setError(
-        "Visit summaries can only be created for completed appointments."
+        "A visit has already been recorded for this appointment."
       );
 
       return;
@@ -792,7 +792,7 @@ function DoctorDashboard() {
 
     if (!appointmentId) {
       setError(
-        "Select a completed appointment first."
+        "Select an appointment first."
       );
 
       return;
@@ -1427,7 +1427,7 @@ function DoctorDashboard() {
 
                             {/* VISIT ACTION */}
 
-                            {completed && (
+                            {!cancelled && (
 
                               <div className="mt-4 flex justify-end">
 
@@ -1463,7 +1463,7 @@ function DoctorDashboard() {
                                       size={15}
                                     />
 
-                                    Generate AI Summary
+                                    Record Visit & Generate AI Summary
 
                                   </button>
 

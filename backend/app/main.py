@@ -13,6 +13,7 @@ from app.api.calendar import router as calendar_router
 
 from app.core.database import Base, engine
 
+
 # Import all models so SQLAlchemy knows about all tables
 from app.models import (
     User,

@@ -46,30 +46,34 @@ function AppointmentCard({
           {appointment.status}
         </span>
 
-        {appointment.status !==
-          "cancelled" && (
+        {appointment.status !== "cancelled" &&
+          appointment.status !== "completed" && (
           <>
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                onReschedule(
-                  appointment
-                )
-              }
-            >
-              Reschedule
-            </button>
+            {onReschedule && (
+              <button
+                className="secondary-btn"
+                onClick={() =>
+                  onReschedule(
+                    appointment
+                  )
+                }
+              >
+                Reschedule
+              </button>
+            )}
 
-            <button
-              className="danger-btn"
-              onClick={() =>
-                onCancel(
-                  appointment.appointment_id
-                )
-              }
-            >
-              Cancel
-            </button>
+            {onCancel && (
+              <button
+                className="danger-btn"
+                onClick={() =>
+                  onCancel(
+                    appointment.appointment_id || appointment.id
+                  )
+                }
+              >
+                Cancel
+              </button>
+            )}
           </>
         )}
 

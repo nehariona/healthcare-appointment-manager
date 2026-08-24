@@ -1,8 +1,32 @@
+import os
+from pathlib import Path
+from typing import List, Union
+
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# ---------------------------------------------------------
+# RELIABLE .ENV DISCOVERY
+# ---------------------------------------------------------
 
-load_dotenv("../.env")
+_CURRENT_FILE = Path(__file__).resolve()
+_CORE_DIR = _CURRENT_FILE.parent
+_APP_DIR = _CORE_DIR.parent
+_BACKEND_DIR = _APP_DIR.parent
+_REPO_ROOT = _BACKEND_DIR.parent
+
+_ENV_CANDIDATES = [
+    _REPO_ROOT / ".env",
+    _BACKEND_DIR / ".env",
+    Path.cwd() / ".env",
+]
+
+_ACTIVE_ENV_FILE = None
+for _candidate in _ENV_CANDIDATES:
+    if _candidate.is_file():
+        load_dotenv(_candidate, override=False)
+        _ACTIVE_ENV_FILE = _candidate
+        break
 
 
 class Settings(BaseSettings):
@@ -54,11 +78,33 @@ class Settings(BaseSettings):
     )
 
     # ---------------------------------------------------------
+    # CORS / FRONTEND ORIGINS
+    # ---------------------------------------------------------
+
+    allowed_origins: Union[str, List[str]] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://healthcare-appointment-manager-w3ap.onrender.com",
+    ]
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        if isinstance(self.allowed_origins, str):
+            return [
+                origin.strip()
+                for origin in self.allowed_origins.split(",")
+                if origin.strip()
+            ]
+        return self.allowed_origins
+
+    # ---------------------------------------------------------
     # SETTINGS CONFIG
     # ---------------------------------------------------------
 
     model_config = SettingsConfigDict(
-        env_file="../.env",
+        env_file=str(_ACTIVE_ENV_FILE) if _ACTIVE_ENV_FILE else None,
         extra="ignore"
     )
 
@@ -105,3 +151,5 @@ GOOGLE_CLIENT_ID = settings.google_client_id
 GOOGLE_CLIENT_SECRET = settings.google_client_secret
 
 GOOGLE_REDIRECT_URI = settings.google_redirect_uri
+
+ALLOWED_ORIGINS = settings.cors_origins_list

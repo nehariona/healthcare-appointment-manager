@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
@@ -35,7 +35,7 @@ def create_notification(
         status="pending",
         attempts=0,
         last_error=None,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
         sent_at=None
     )
 
@@ -57,7 +57,7 @@ def mark_notification_sent(
 
     notification.status = "sent"
 
-    notification.sent_at = datetime.utcnow()
+    notification.sent_at = datetime.now(timezone.utc)
 
     notification.last_error = None
 

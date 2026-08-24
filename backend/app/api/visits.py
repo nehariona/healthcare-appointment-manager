@@ -96,6 +96,16 @@ def create_visit(
         )
 
     # -----------------------------------------------------
+    # VALIDATE APPOINTMENT STATUS
+    # -----------------------------------------------------
+
+    if appointment.status == "cancelled":
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot record a visit for a cancelled appointment"
+        )
+
+    # -----------------------------------------------------
     # PREVENT DUPLICATE VISIT
     # -----------------------------------------------------
 
@@ -123,15 +133,15 @@ def create_visit(
     )
 
     # -----------------------------------------------------
-    # CREATE VISIT
+    # CREATE VISIT & MARK COMPLETED
     # -----------------------------------------------------
 
     visit = Visit(
-    appointment_id=appointment.id,
-    doctor_notes=request.clinical_notes,
-    prescription=request.prescription,
-    patient_summary=ai_summary
-)
+        appointment_id=appointment.id,
+        doctor_notes=request.clinical_notes,
+        prescription=request.prescription,
+        patient_summary=ai_summary
+    )
 
     db.add(visit)
 

@@ -623,35 +623,6 @@ def reschedule_appointment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-
-    # -----------------------------------------------------
-    # ONLY DOCTORS
-    # -----------------------------------------------------
-
-    if current_user.role != "doctor":
-        raise HTTPException(
-            status_code=403,
-            detail="Only doctors can reschedule appointments",
-        )
-
-    # -----------------------------------------------------
-    # FIND DOCTOR
-    # -----------------------------------------------------
-
-    doctor = (
-        db.query(Doctor)
-        .filter(
-            Doctor.user_id == current_user.id
-        )
-        .first()
-    )
-
-    if not doctor:
-        raise HTTPException(
-            status_code=404,
-            detail="Doctor profile not found",
-        )
-
     # -----------------------------------------------------
     # FIND APPOINTMENT
     # -----------------------------------------------------
@@ -671,17 +642,63 @@ def reschedule_appointment(
         )
 
     # -----------------------------------------------------
-    # VERIFY DOCTOR OWNERSHIP
+    # FIND DOCTOR & USERS
     # -----------------------------------------------------
 
-    if appointment.doctor_id != doctor.id:
+    doctor = (
+        db.query(Doctor)
+        .filter(
+            Doctor.id == appointment.doctor_id
+        )
+        .first()
+    )
+
+    if not doctor:
+        raise HTTPException(
+            status_code=404,
+            detail="Doctor profile not found",
+        )
+
+    doctor_user = (
+        db.query(User)
+        .filter(
+            User.id == doctor.user_id
+        )
+        .first()
+    )
+
+    patient = (
+        db.query(User)
+        .filter(
+            User.id == appointment.patient_id
+        )
+        .first()
+    )
+
+    # -----------------------------------------------------
+    # RBAC: PATIENT, DOCTOR, OR ADMIN
+    # -----------------------------------------------------
+
+    if current_user.role == "patient":
+        if appointment.patient_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only reschedule your own appointments",
+            )
+    elif current_user.role == "doctor":
+        if appointment.doctor_id != doctor.id or doctor.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only reschedule your own appointments",
+            )
+    elif current_user.role != "admin":
         raise HTTPException(
             status_code=403,
-            detail="You can only reschedule your own appointments",
+            detail="You do not have permission to reschedule appointments",
         )
 
     # -----------------------------------------------------
-    # CANCELLED CHECK
+    # STATUS CHECK: CANCELLED / COMPLETED
     # -----------------------------------------------------
 
     if appointment.status == "cancelled":
@@ -690,17 +707,19 @@ def reschedule_appointment(
             detail="Cancelled appointment cannot be rescheduled",
         )
 
+    if appointment.status == "completed":
+        raise HTTPException(
+            status_code=400,
+            detail="Completed appointment cannot be rescheduled",
+        )
+
     # -----------------------------------------------------
-    # NORMALIZE NEW TIME
+    # NORMALIZE & VALIDATE NEW TIME
     # -----------------------------------------------------
 
     new_time = normalize_to_ist(
         request.new_time
     )
-
-    # -----------------------------------------------------
-    # VALIDATE NEW SLOT
-    # -----------------------------------------------------
 
     new_time = validate_appointment_slot(
         db=db,
@@ -710,7 +729,7 @@ def reschedule_appointment(
     )
 
     # -----------------------------------------------------
-    # SAVE OLD TIME
+    # SAVE OLD TIME FOR NOTIFICATIONS
     # -----------------------------------------------------
 
     old_time = appointment.appointment_time
@@ -731,13 +750,9 @@ def reschedule_appointment(
     appointment.status = "rescheduled"
 
     try:
-
         db.commit()
-
     except IntegrityError:
-
         db.rollback()
-
         raise HTTPException(
             status_code=409,
             detail="This appointment slot is already booked",
@@ -749,37 +764,31 @@ def reschedule_appointment(
     # GOOGLE CALENDAR UPDATE
     # =====================================================
 
-    if (
-        appointment.google_calendar_event_id
-        and getattr(
-            current_user,
-            "google_calendar_connected",
-            False,
-        )
-    ):
+    gcal_user = None
+    if getattr(current_user, "google_calendar_connected", False):
+        gcal_user = current_user
+    elif patient and getattr(patient, "google_calendar_connected", False):
+        gcal_user = patient
+    elif doctor_user and getattr(doctor_user, "google_calendar_connected", False):
+        gcal_user = doctor_user
 
+    if appointment.google_calendar_event_id and gcal_user:
         try:
-
             calendar_service = (
                 build_calendar_service_for_user(
-                    current_user
+                    gcal_user
                 )
-            )
-
-            # Find patient
-            patient = (
-                db.query(User)
-                .filter(
-                    User.id == appointment.patient_id
-                )
-                .first()
             )
 
             update_calendar_event(
                 service=calendar_service,
                 event_id=appointment.google_calendar_event_id,
                 appointment_time=appointment.appointment_time,
-                doctor_name=current_user.full_name,
+                doctor_name=(
+                    doctor_user.full_name
+                    if doctor_user
+                    else "Doctor"
+                ),
                 patient_name=(
                     patient.full_name
                     if patient
@@ -790,34 +799,23 @@ def reschedule_appointment(
                     if patient
                     else ""
                 ),
-                doctor_email=current_user.email,
+                doctor_email=(
+                    doctor_user.email
+                    if doctor_user
+                    else ""
+                ),
                 reason=appointment.reason,
             )
-
         except Exception as e:
-
             print(
                 f"Google Calendar event update failed: {e}"
             )
-
-    # -----------------------------------------------------
-    # FIND PATIENT
-    # -----------------------------------------------------
-
-    patient = (
-        db.query(User)
-        .filter(
-            User.id == appointment.patient_id
-        )
-        .first()
-    )
 
     # =====================================================
     # PATIENT NOTIFICATION
     # =====================================================
 
-    if patient:
-
+    if patient and patient.email:
         patient_notification = create_notification(
             db=db,
             user_id=patient.id,
@@ -826,6 +824,7 @@ def reschedule_appointment(
             subject="Appointment Rescheduled",
             body=(
                 "Your appointment has been rescheduled.\n\n"
+                f"Appointment ID: {appointment.id}\n"
                 f"Previous time: {old_time_ist}\n"
                 f"New time: {new_time_ist}"
             ),
@@ -840,24 +839,26 @@ def reschedule_appointment(
     # DOCTOR NOTIFICATION
     # =====================================================
 
-    doctor_notification = create_notification(
-        db=db,
-        user_id=current_user.id,
-        notification_type="appointment_rescheduled",
-        recipient=current_user.email,
-        subject="Appointment Rescheduled",
-        body=(
-            "Appointment rescheduled successfully.\n\n"
-            f"Appointment ID: {appointment.id}\n"
-            f"Previous time: {old_time_ist}\n"
-            f"New time: {new_time_ist}"
-        ),
-    )
+    if doctor_user and doctor_user.email:
+        doctor_notification = create_notification(
+            db=db,
+            user_id=doctor_user.id,
+            notification_type="appointment_rescheduled",
+            recipient=doctor_user.email,
+            subject="Appointment Rescheduled",
+            body=(
+                "An appointment has been rescheduled.\n\n"
+                f"Appointment ID: {appointment.id}\n"
+                f"Patient: {patient.full_name if patient else 'Patient'}\n"
+                f"Previous time: {old_time_ist}\n"
+                f"New time: {new_time_ist}"
+            ),
+        )
 
-    process_notification(
-        db,
-        doctor_notification,
-    )
+        process_notification(
+            db,
+            doctor_notification,
+        )
 
     return appointment
 

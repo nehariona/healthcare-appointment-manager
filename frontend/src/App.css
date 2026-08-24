@@ -50,7 +50,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #0284c7;
   outline-offset: 2px;
 }
 
@@ -67,12 +67,12 @@ svg {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -84,9 +84,25 @@ svg {
   background: #94a3b8;
 }
 
+html[data-theme="dark"] ::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
 /* Selection */
 ::selection {
-  background: #dbeafe;
-  color: #1e3a8a;
+  background: rgba(2, 132, 199, 0.25);
+  color: #0369a1;
+}
+
+html[data-theme="dark"] ::selection,
+html.dark ::selection {
+  background: rgba(56, 189, 248, 0.3);
+  color: #f8fafc;
 }
 
