@@ -1,35 +1,37 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.auth import router as auth_router
-from app.api.doctors import router as doctors_router
 from app.api.appointments import router as appointments_router
-from app.api.admin import router as admin_router
-from app.api.symptoms import router as symptoms_router
-from app.api.visits import router as visits_router
-from app.api.notifications import router as notifications_router
-from app.api.users import router as users_router
+from app.api.auth import router as auth_router
 from app.api.calendar import router as calendar_router
-
+from app.api.doctors import router as doctors_router
+from app.api.notifications import router as notifications_router
+from app.api.symptoms import router as symptoms_router
+from app.api.users import router as users_router
+from app.api.visits import router as visits_router
+from app.core.config import settings
 from app.core.database import Base, engine
-
 
 # Import all models so SQLAlchemy knows about all tables
 from app.models import (
-    User,
-    Doctor,
     Appointment,
-    DoctorVerification,
+    Doctor,
     DoctorLeave,
-    Symptom,
-    Visit,
+    DoctorVerification,
     Notification,
+    Symptom,
+    User,
+    Visit,
 )
 
 app = FastAPI(
     title="Healthcare Appointment Manager",
     version="1.0.0",
+    description="Healthcare scheduling, patient intake, doctor workflows, and visit summaries.",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
+
 
 # =========================================================
 # DATABASE INITIALIZATION
@@ -37,20 +39,23 @@ app = FastAPI(
 
 Base.metadata.create_all(bind=engine)
 
+
 # =========================================================
 # CORS
 # =========================================================
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://healthcare-appointment-manager-w3ap.onrender.com",
-        "http://localhost:5173",
+        "https://healthcare-appointment-manager-frontend-j9or.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # =========================================================
 # ROOT
@@ -64,6 +69,7 @@ def root():
         "version": "1.0.0",
     }
 
+
 # =========================================================
 # API ROUTES
 # =========================================================
@@ -71,7 +77,6 @@ def root():
 app.include_router(auth_router)
 app.include_router(doctors_router)
 app.include_router(appointments_router)
-app.include_router(admin_router)
 app.include_router(symptoms_router)
 app.include_router(visits_router)
 app.include_router(notifications_router)

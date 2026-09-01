@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SymptomCreate(BaseModel):
@@ -24,5 +26,10 @@ class SymptomResponse(BaseModel):
 
     ai_summary: str | None = None
 
-    class Config:
-        from_attributes = True
+    summary: dict | None = None
+
+    status: str | None = None
+
+    generated_at: datetime | None = None
+
+    model_config = ConfigDict(from_attributes=True)

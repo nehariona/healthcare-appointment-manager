@@ -28,7 +28,7 @@ def send_email(
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
 
-        server.starttls()
+        server.starttls() #secure the connection by encryption
 
         server.login(
             SMTP_USERNAME,

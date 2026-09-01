@@ -168,6 +168,9 @@ def submit_symptoms(
         chief_complaint=symptom.chief_complaint,
         suggested_questions=_decode_questions(symptom.suggested_questions),
         ai_summary=symptom.ai_summary,
+        summary=ai_result.get("summary"),
+        status=ai_result.get("status"),
+        generated_at=ai_result.get("generated_at"),
     )
 
 

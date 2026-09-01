@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field, ConfigDict
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class VisitCreate(BaseModel):
@@ -28,6 +30,12 @@ class VisitResponse(BaseModel):
         default=None,
         validation_alias="patient_summary"
     )
+
+    summary: dict | None = None
+
+    status: str | None = None
+
+    generated_at: datetime | None = None
 
     model_config = ConfigDict(
         from_attributes=True,

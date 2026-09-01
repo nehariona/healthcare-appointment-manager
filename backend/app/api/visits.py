@@ -127,10 +127,11 @@ def create_visit(
     # GENERATE AI SUMMARY
     # -----------------------------------------------------
 
-    ai_summary = generate_post_visit_summary(
+    ai_summary_payload = generate_post_visit_summary(
         request.clinical_notes,
         request.prescription
     )
+    ai_summary_text = ai_summary_payload.get("summary_text") or ai_summary_payload.get("ai_summary")
 
     # -----------------------------------------------------
     # CREATE VISIT & MARK COMPLETED
@@ -140,7 +141,7 @@ def create_visit(
         appointment_id=appointment.id,
         doctor_notes=request.clinical_notes,
         prescription=request.prescription,
-        patient_summary=ai_summary
+        patient_summary=ai_summary_text
     )
 
     db.add(visit)
@@ -151,7 +152,18 @@ def create_visit(
     db.commit()
     db.refresh(visit)
 
-    return visit
+    visit_response = {
+        "id": visit.id,
+        "appointment_id": visit.appointment_id,
+        "doctor_notes": visit.doctor_notes,
+        "prescription": visit.prescription,
+        "patient_summary": visit.patient_summary,
+        "summary": ai_summary_payload.get("summary"),
+        "status": ai_summary_payload.get("status"),
+        "generated_at": ai_summary_payload.get("generated_at"),
+    }
+
+    return visit_response
 
 
 # ---------------------------------------------------------
