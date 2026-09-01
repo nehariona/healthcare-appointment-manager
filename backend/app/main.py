@@ -46,9 +46,13 @@ Base.metadata.create_all(bind=engine)
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "https://healthcare-appointment-manager-frontend-j9or.onrender.com",
     ],
     allow_credentials=True,
