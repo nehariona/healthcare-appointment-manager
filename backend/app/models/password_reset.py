@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -9,7 +8,11 @@ from app.core.database import Base
 class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
     user_id = Column(
         Integer,
@@ -25,7 +28,7 @@ class PasswordResetToken(Base):
     )
 
     expires_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False
     )
 
