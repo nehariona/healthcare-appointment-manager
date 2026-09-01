@@ -36,6 +36,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html[data-theme="dark"],
+html.dark {
+  background: #020817;
+  color: #e2e8f0;
+}
+
 /* Remove default button/input appearance issues */
 button,
 input,

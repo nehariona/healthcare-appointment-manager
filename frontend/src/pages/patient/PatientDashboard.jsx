@@ -1558,16 +1558,16 @@ function PatientDashboard() {
 
                                   {/* AI SUMMARY */}
 
-                                  <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-500/20 dark:bg-blue-500/5">
+                                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
 
                                     <div className="mb-2 flex items-center gap-2">
 
                                       <Sparkles
                                         size={15}
-                                        className="text-blue-600 dark:text-blue-400"
+                                        className="text-slate-700 dark:text-slate-300"
                                       />
 
-                                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-700 dark:text-blue-400">
+                                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-700 dark:text-slate-300">
 
                                         AI Patient Summary
 
@@ -1581,7 +1581,7 @@ function PatientDashboard() {
                                       {
                                         visit.ai_summary ||
                                         visit.patient_summary ||
-                                        "Summary unavailable."
+                                        "Clinical summary is being prepared. Please check back soon."
                                       }
 
                                     </div>
@@ -2002,16 +2002,16 @@ function PatientDashboard() {
 
               {/* AI SUMMARY */}
 
-              <div className="rounded-xl border border-blue-100 bg-blue-50 p-5 dark:border-blue-500/20 dark:bg-blue-500/5">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/80">
 
                 <div className="mb-3 flex items-center gap-2">
 
                   <Sparkles
                     size={16}
-                    className="text-blue-600 dark:text-blue-400"
+                    className="text-slate-700 dark:text-slate-300"
                   />
 
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Patient-Friendly AI Summary
                   </h3>
 
@@ -2027,7 +2027,7 @@ function PatientDashboard() {
                     selectedVisit
                       .visit
                       .patient_summary ||
-                    "Summary unavailable."
+                    "Clinical summary is being prepared. Please check back soon."
                   }
 
                 </div>

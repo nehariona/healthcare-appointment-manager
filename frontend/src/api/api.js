@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const API_BASE_URL =
@@ -9,10 +10,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-// =========================================================
-// JWT
-// =========================================================
 
 api.interceptors.request.use(
   (config) => {
@@ -28,10 +25,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// =========================================================
-// AUTH ERROR HANDLING
-// =========================================================
-
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -44,10 +37,6 @@ api.interceptors.response.use(
   }
 );
 
-// =========================================================
-// AUTH
-// =========================================================
-
 export async function register(data) {
   const response = await api.post("/auth/register", data);
   return response.data;
@@ -58,18 +47,10 @@ export async function login(data) {
   return response.data;
 }
 
-// =========================================================
-// USERS
-// =========================================================
-
 export async function getMyProfile() {
   const response = await api.get("/users/me");
   return response.data;
 }
-
-// =========================================================
-// DOCTORS
-// =========================================================
 
 export async function getDoctors() {
   const response = await api.get("/doctors/");
@@ -85,10 +66,6 @@ export async function createDoctorProfile(data) {
   const response = await api.post("/doctors/profile", data);
   return response.data;
 }
-
-// =========================================================
-// APPOINTMENTS
-// =========================================================
 
 export async function bookAppointment(data) {
   const response = await api.post("/appointments/", data);
@@ -140,28 +117,18 @@ export async function rescheduleAppointment(
   return response.data;
 }
 
-// =========================================================
-// SYMPTOMS / PRE-VISIT SUMMARY
-// =========================================================
-
 export async function createSymptoms(data) {
   const response = await api.post("/symptoms/", data);
   return response.data;
 }
 
-export async function getAppointmentSymptoms(
-  appointmentId
-) {
+export async function getAppointmentSymptoms(appointmentId) {
   const response = await api.get(
     `/symptoms/appointment/${appointmentId}`
   );
 
   return response.data;
 }
-
-// =========================================================
-// VISITS / AI SUMMARY
-// =========================================================
 
 export async function createVisit(data) {
   const response = await api.post("/visits/", data);
@@ -175,10 +142,6 @@ export async function getVisit(appointmentId) {
 
   return response.data;
 }
-
-// =========================================================
-// NOTIFICATIONS
-// =========================================================
 
 export async function getNotifications() {
   const response = await api.get("/notifications/");
@@ -208,10 +171,6 @@ export async function getFailedNotifications() {
 
   return response.data;
 }
-
-// =========================================================
-// ADMIN
-// =========================================================
 
 export async function getPendingDoctors() {
   const response = await api.get(
@@ -248,12 +207,11 @@ export async function markDoctorLeave(
   return response.data;
 }
 
-// =========================================================
-// GOOGLE CALENDAR
-// =========================================================
-
 export async function getGoogleCalendarAuthUrl() {
-  const response = await api.get("/calendar/oauth/authorize");
+  const response = await api.get(
+    "/calendar/oauth/authorize"
+  );
+
   return response.data;
 }
 
