@@ -9,7 +9,7 @@ from app.api.notifications import router as notifications_router
 from app.api.symptoms import router as symptoms_router
 from app.api.users import router as users_router
 from app.api.visits import router as visits_router
-from app.core.config import settings
+
 from app.core.database import Base, engine
 
 # Import all models so SQLAlchemy knows about all tables
@@ -24,6 +24,11 @@ from app.models import (
     Visit,
 )
 
+
+# =========================================================
+# FASTAPI APPLICATION
+# =========================================================
+
 app = FastAPI(
     title="Healthcare Appointment Manager",
     version="1.0.0",
@@ -34,24 +39,8 @@ app = FastAPI(
 
 
 # =========================================================
-# DATABASE INITIALIZATION
-# =========================================================
-
-Base.metadata.create_all(bind=engine)
-
-
-# =========================================================
 # CORS
 # =========================================================
-
-from fastapi.middleware.cors import CORSMiddleware
-
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI(
-    title="Healthcare Appointment Manager",
-    version="1.0.0"
-)
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,8 +54,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(...)
+
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
+
+Base.metadata.create_all(bind=engine)
 
 
 # =========================================================
