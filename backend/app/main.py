@@ -48,7 +48,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(...)
+app = FastAPI(
+    title="Healthcare Appointment Manager",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
