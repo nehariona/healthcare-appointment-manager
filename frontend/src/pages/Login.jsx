@@ -95,10 +95,7 @@ export default function Login() {
 
       <div className="relative w-full max-w-6xl grid lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
 
-        {/* =====================================================
-            LEFT SIDE
-        ====================================================== */}
-
+        {/* ================= LEFT SIDE ================= */}
         <section className="hidden lg:flex relative bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 text-white p-12 xl:p-16 flex-col justify-between">
 
           <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-blue-500/20 blur-3xl" />
@@ -160,7 +157,6 @@ export default function Login() {
                     key={feature}
                     className="flex items-center gap-3 text-sm"
                   >
-
                     <div className="w-6 h-6 rounded-full bg-emerald-400/15 flex items-center justify-center">
                       <CheckCircle2
                         size={16}
@@ -169,7 +165,6 @@ export default function Login() {
                     </div>
 
                     <span>{feature}</span>
-
                   </div>
                 ))}
 
@@ -179,6 +174,7 @@ export default function Login() {
 
           </div>
 
+          {/* Security footer */}
           <div className="relative z-10 flex items-center gap-2 text-xs text-blue-300/70">
             <ShieldCheck size={15} />
             Secure healthcare platform
@@ -186,10 +182,7 @@ export default function Login() {
 
         </section>
 
-        {/* =====================================================
-            RIGHT SIDE
-        ====================================================== */}
-
+        {/* ================= RIGHT SIDE ================= */}
         <section className="flex items-center justify-center p-6 sm:p-10 lg:p-14">
 
           <div className="w-full max-w-md">
@@ -293,10 +286,7 @@ export default function Login() {
                     Password
                   </label>
 
-                  {/* IMPORTANT:
-                      Forgot Password is a Link,
-                      NOT a button containing a Link.
-                  */}
+                  {/* Correct: Link is JSX, not an import */}
                   <Link
                     to="/forgot-password"
                     className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
@@ -316,7 +306,11 @@ export default function Login() {
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? "text" : "password"}
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
                     value={form.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
