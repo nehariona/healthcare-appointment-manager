@@ -11,14 +11,18 @@ from app.core.database import get_db
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
-    TokenResponse
+    TokenResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest
 )
 
 from app.schemas.user import UserResponse
 
 from app.services.auth_service import (
     register_user,
-    login_user
+    login_user,
+    request_password_reset,
+    reset_password
 )
 router = APIRouter(
     prefix="/auth",
@@ -92,4 +96,41 @@ def login(
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+@router.post("/forgot-password")
+def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    request_password_reset(
+        db=db,
+        email=request.email
+    )
+
+    return {
+        "message": "If an account with that email exists, "
+                   "a password reset link has been sent."
+    }
+
+
+@router.post("/reset-password")
+def reset_password_endpoint(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    success = reset_password(
+        db=db,
+        token=request.token,
+        new_password=request.new_password
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired password reset token"
+        )
+
+    return {
+        "message": "Password reset successfully"
     }

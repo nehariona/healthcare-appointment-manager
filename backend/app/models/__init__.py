@@ -6,3 +6,4 @@ from app.models.doctor_leave import DoctorLeave
 from app.models.symptom import Symptom
 from app.models.visit import Visit
 from app.models.notification import Notification
+from app.models.password_reset import PasswordResetToken

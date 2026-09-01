@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,6 +12,7 @@ from app.api.users import router as users_router
 from app.api.visits import router as visits_router
 
 from app.core.database import Base, engine
+from app.core.config import ALLOWED_ORIGINS
 
 # Import all models so SQLAlchemy knows about all tables
 from app.models import (
@@ -19,6 +21,7 @@ from app.models import (
     DoctorLeave,
     DoctorVerification,
     Notification,
+    PasswordResetToken,
     Symptom,
     User,
     Visit,
@@ -32,7 +35,10 @@ from app.models import (
 app = FastAPI(
     title="Healthcare Appointment Manager",
     version="1.0.0",
-    description="Healthcare scheduling, patient intake, doctor workflows, and visit summaries.",
+    description=(
+        "Healthcare scheduling, patient intake, doctor workflows, "
+        "and visit summaries."
+    ),
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -44,11 +50,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://healthcare-appointment-manager-frontend-j9or.onrender.com",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

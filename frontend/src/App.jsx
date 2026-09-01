@@ -8,6 +8,9 @@ import {
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -15,6 +18,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Doctors from "./pages/patient/Doctors";
 import MyAppointments from "./pages/patient/MyAppointments";
+
 import { useAuth } from "./context/AuthContext";
 
 function getDashboardRoute(role) {
@@ -26,10 +30,7 @@ function getDashboardRoute(role) {
   return "/dashboard";
 }
 
-function ProtectedRoute({
-  children,
-  allowedRoles,
-}) {
+function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -89,11 +90,21 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
 
+        {/* Public routes */}
+        <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
+        />
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
+        />
 
+        {/* Patient routes */}
         <Route
           path="/dashboard"
           element={
@@ -121,6 +132,7 @@ function App() {
           }
         />
 
+        {/* Doctor route */}
         <Route
           path="/doctor"
           element={
@@ -130,6 +142,7 @@ function App() {
           }
         />
 
+        {/* Admin route */}
         <Route
           path="/admin"
           element={
@@ -139,10 +152,13 @@ function App() {
           }
         />
 
+        {/* Shared routes */}
         <Route
           path="/notifications"
           element={
-            <ProtectedRoute allowedRoles={["patient", "doctor", "admin"]}>
+            <ProtectedRoute
+              allowedRoles={["patient", "doctor", "admin"]}
+            >
               <Notifications />
             </ProtectedRoute>
           }
@@ -151,16 +167,20 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute allowedRoles={["patient", "doctor", "admin"]}>
+            <ProtectedRoute
+              allowedRoles={["patient", "doctor", "admin"]}
+            >
               <Profile />
             </ProtectedRoute>
           }
         />
 
+        {/* Unknown route */}
         <Route
           path="*"
           element={<Navigate to="/" replace />}
         />
+
       </Routes>
     </BrowserRouter>
   );

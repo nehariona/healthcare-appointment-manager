@@ -1,6 +1,3 @@
-from pydantic import BaseModel, EmailStr,model_validator
-
-
 from pydantic import BaseModel, EmailStr, model_validator
 
 
@@ -22,24 +19,16 @@ class RegisterRequest(BaseModel):
         if self.role == "doctor":
 
             if not self.specialization:
-                raise ValueError(
-                    "Specialization is required for doctors"
-                )
+                raise ValueError("Specialization is required for doctors")
 
             if not self.hospital:
-                raise ValueError(
-                    "Hospital is required for doctors"
-                )
+                raise ValueError("Hospital is required for doctors")
 
             if self.experience_years is None:
-                raise ValueError(
-                    "Experience years is required for doctors"
-                )
+                raise ValueError("Experience years is required for doctors")
 
             if not self.government_id_number:
-                raise ValueError(
-                    "Government ID is required for doctors"
-                )
+                raise ValueError("Government ID is required for doctors")
 
             if not self.medical_license_number:
                 raise ValueError(
@@ -50,14 +39,19 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-
     email: EmailStr
-
     password: str
 
 
 class TokenResponse(BaseModel):
-
     access_token: str
-
     token_type: str = "bearer"
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str

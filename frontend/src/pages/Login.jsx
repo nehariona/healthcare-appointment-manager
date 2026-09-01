@@ -315,7 +315,13 @@ export default function Login() {
                     type="button"
                     className="text-xs font-semibold text-blue-600 hover:text-blue-700"
                   >
-                    Forgot password?
+                   import { Link } from "react-router-dom";
+                   <Link
+  to="/forgot-password"
+  className="text-blue-600 hover:underline"
+>
+  Forgot password?
+</Link>
                   </button>
 
                 </div>

@@ -80,6 +80,12 @@ class Settings(BaseSettings):
     # ---------------------------------------------------------
     # CORS / FRONTEND ORIGINS
     # ---------------------------------------------------------
+    # ---------------------------------------------------------
+# CORS / FRONTEND ORIGINS
+# ---------------------------------------------------------
+
+    frontend_url: str = "http://localhost:5173"
+
 
     allowed_origins: Union[str, List[str]] = [
         "http://localhost:5173",
@@ -153,3 +159,9 @@ GOOGLE_CLIENT_SECRET = settings.google_client_secret
 GOOGLE_REDIRECT_URI = settings.google_redirect_uri
 
 ALLOWED_ORIGINS = settings.cors_origins_list
+
+# ---------------------------------------------------------
+# FRONTEND URL
+# ---------------------------------------------------------
+
+FRONTEND_URL = settings.frontend_url
