@@ -27,17 +27,19 @@ export default function Login() {
   const [error, setError] = useState("");
 
   function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
-    if (!form.email || !form.password) {
+    if (!form.email.trim() || !form.password) {
       setError("Please enter your email and password.");
       return;
     }
@@ -45,22 +47,12 @@ export default function Login() {
     try {
       setLoading(true);
 
-      // Login through AuthContext
       const user = await login(
-        form.email,
+        form.email.trim(),
         form.password
       );
 
       console.log("Logged-in user:", user);
-
-      /*
-       * Navigate according to the user's role.
-       *
-       * Your backend may return:
-       * "patient"
-       * "doctor"
-       * "admin"
-       */
 
       const role = user?.role?.toLowerCase();
 
@@ -71,11 +63,8 @@ export default function Login() {
       } else if (role === "admin") {
         navigate("/admin", { replace: true });
       } else {
-        // If backend doesn't return role,
-        // temporarily send user to patient dashboard.
         navigate("/dashboard", { replace: true });
       }
-
     } catch (err) {
       console.error("Login error:", err);
 
@@ -85,8 +74,9 @@ export default function Login() {
         err?.message;
 
       setError(
-        backendMessage ||
-          "Invalid email or password. Please try again."
+        typeof backendMessage === "string"
+          ? backendMessage
+          : "Invalid email or password. Please try again."
       );
     } finally {
       setLoading(false);
@@ -105,7 +95,9 @@ export default function Login() {
 
       <div className="relative w-full max-w-6xl grid lg:grid-cols-2 bg-white rounded-3xl shadow-2xl overflow-hidden">
 
-        {/* ================= LEFT ================= */}
+        {/* =====================================================
+            LEFT SIDE
+        ====================================================== */}
 
         <section className="hidden lg:flex relative bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 text-white p-12 xl:p-16 flex-col justify-between">
 
@@ -134,25 +126,20 @@ export default function Login() {
 
             </div>
 
-            {/* Content */}
+            {/* Main content */}
             <div className="mt-24 max-w-lg">
 
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium">
                 <CheckCircle2 size={14} />
-
                 Secure healthcare management
               </div>
 
               <h1 className="mt-6 text-4xl xl:text-5xl font-bold leading-tight">
-
                 Manage your healthcare,
-
                 <br />
-
                 <span className="text-blue-300">
                   with confidence.
                 </span>
-
               </h1>
 
               <p className="mt-6 text-blue-100/80 leading-7">
@@ -169,25 +156,21 @@ export default function Login() {
                   "Secure patient and doctor management",
                   "Real-time appointment updates",
                 ].map((feature) => (
-
                   <div
                     key={feature}
                     className="flex items-center gap-3 text-sm"
                   >
 
                     <div className="w-6 h-6 rounded-full bg-emerald-400/15 flex items-center justify-center">
-
                       <CheckCircle2
                         size={16}
                         className="text-emerald-300"
                       />
-
                     </div>
 
-                    {feature}
+                    <span>{feature}</span>
 
                   </div>
-
                 ))}
 
               </div>
@@ -197,16 +180,15 @@ export default function Login() {
           </div>
 
           <div className="relative z-10 flex items-center gap-2 text-xs text-blue-300/70">
-
             <ShieldCheck size={15} />
-
             Secure healthcare platform
-
           </div>
 
         </section>
 
-        {/* ================= RIGHT ================= */}
+        {/* =====================================================
+            RIGHT SIDE
+        ====================================================== */}
 
         <section className="flex items-center justify-center p-6 sm:p-10 lg:p-14">
 
@@ -249,19 +231,17 @@ export default function Login() {
 
             </div>
 
-            {/* Error */}
+            {/* Error message */}
             {error && (
-
               <div
                 role="alert"
                 className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
               >
                 {error}
               </div>
-
             )}
 
-            {/* Form */}
+            {/* Login form */}
             <form
               onSubmit={handleSubmit}
               className="mt-8 space-y-5"
@@ -292,7 +272,9 @@ export default function Login() {
                     onChange={handleChange}
                     placeholder="you@example.com"
                     autoComplete="email"
-                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    disabled={loading}
+                    required
+                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                   />
 
                 </div>
@@ -311,18 +293,16 @@ export default function Login() {
                     Password
                   </label>
 
-                  <button
-                    type="button"
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+                  {/* IMPORTANT:
+                      Forgot Password is a Link,
+                      NOT a button containing a Link.
+                  */}
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                   >
-                   import { Link } from "react-router-dom";
-                   <Link
-  to="/forgot-password"
-  className="text-blue-600 hover:underline"
->
-  Forgot password?
-</Link>
-                  </button>
+                    Forgot password?
+                  </Link>
 
                 </div>
 
@@ -336,22 +316,21 @@ export default function Login() {
                   <input
                     id="password"
                     name="password"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
                     autoComplete="current-password"
-                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    disabled={loading}
+                    required
+                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-12 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
                   />
 
+                  {/* Show / hide password */}
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword(!showPassword)
+                      setShowPassword((prev) => !prev)
                     }
                     aria-label={
                       showPassword
@@ -379,7 +358,7 @@ export default function Login() {
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
 
-                Remember me
+                <span>Remember me</span>
 
               </label>
 
@@ -391,10 +370,10 @@ export default function Login() {
               >
 
                 {loading ? (
-                  "Signing in..."
+                  <span>Signing in...</span>
                 ) : (
                   <>
-                    Sign In
+                    <span>Sign In</span>
 
                     <ArrowRight
                       size={17}
@@ -411,7 +390,6 @@ export default function Login() {
             <div className="mt-7 text-center">
 
               <p className="text-sm text-slate-500">
-
                 New to HealthCare?{" "}
 
                 <Link
@@ -420,7 +398,6 @@ export default function Login() {
                 >
                   Create an account
                 </Link>
-
               </p>
 
             </div>
@@ -430,10 +407,11 @@ export default function Login() {
 
               <ShieldCheck size={15} />
 
-              Secure healthcare platform
+              <span>Secure healthcare platform</span>
 
             </div>
 
+            {/* Footer */}
             <p className="mt-6 text-center text-xs text-slate-400">
               © 2026 HealthCare Appointment Manager
             </p>
